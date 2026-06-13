@@ -250,3 +250,47 @@ body {
 /* Password */
 .p-password { width: 100%; }
 .p-password-input { width: 100% !important; }
+
+/* ─── Responsive global ─────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Dialogs plein écran sur mobile */
+  .p-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    max-height: 90vh !important;
+  }
+  .p-dialog .p-dialog-content { overflow-y: auto; max-height: 65vh; }
+  .p-dialog-mask { align-items: flex-end !important; }
+
+  /* Éléments de formulaire plus grands (touch) */
+  .p-inputtext, input[type="text"], input[type="date"], input[type="month"],
+  input[type="email"], input[type="tel"], input[type="password"] {
+    font-size: 16px !important; /* évite le zoom iOS */
+    min-height: 44px;
+  }
+  .p-inputnumber input { font-size: 16px !important; min-height: 44px; }
+  .p-select { min-height: 44px; }
+  .p-select-label { font-size: 16px !important; }
+
+  /* KPI grid global : 2 colonnes sur mobile */
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .kpi-value { font-size: 1.25rem; }
+  .kpi-card { padding: 1rem; }
+
+  /* Section cards : padding réduit */
+  .section-card { padding: 1rem; }
+
+  /* Page header : flex wrap */
+  .page-header { flex-wrap: wrap; gap: 0.5rem; }
+  .page-title { font-size: 1.15rem; }
+}

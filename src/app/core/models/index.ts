@@ -22,6 +22,7 @@ export interface Transaction {
   month: string;        // YYYY-MM — mois de la date réelle
   budgetMonth?: string; // YYYY-MM — override : mois comptabilisé (ex: virement fin de mois → mois suivant)
   contribFrom?: string; // accountId de la personne (virements entrants sur commun)
+  recurrent?: boolean;  // vrai si c'est un prélèvement récurrent mensuel
 }
 
 export interface Revenu {

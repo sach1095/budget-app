@@ -31,14 +31,16 @@ import { take } from 'rxjs/operators';
             <div class="mode-check" [class.visible]="selected() === 'firestore'">✓</div>
           </button>
 
-          <button class="mode-card" [class.selected]="selected() === 'local'" (click)="selected.set('local')">
-            <div class="mode-icon">💾</div>
-            <div class="mode-body">
-              <div class="mode-title">Fichier local</div>
-              <div class="mode-desc">Données sur votre ordinateur. Privé, hors ligne.</div>
-            </div>
-            <div class="mode-check" [class.visible]="selected() === 'local'">✓</div>
-          </button>
+          @if (hasLocalFS) {
+            <button class="mode-card" [class.selected]="selected() === 'local'" (click)="selected.set('local')">
+              <div class="mode-icon">💾</div>
+              <div class="mode-body">
+                <div class="mode-title">Fichier local</div>
+                <div class="mode-desc">Données sur votre ordinateur. Privé, hors ligne.</div>
+              </div>
+              <div class="mode-check" [class.visible]="selected() === 'local'">✓</div>
+            </button>
+          }
         </div>
 
         <p-button
@@ -115,13 +117,20 @@ export class WelcomeComponent implements OnInit {
   private localFS = inject(LocalFileStorageService);
 
   selected = signal<StorageMode>('firestore');
+  readonly hasLocalFS = 'showDirectoryPicker' in window;
 
-  ngOnInit() {
-    // If already logged in + same mode → go to dashboard
-    this.auth.user$.pipe(take(1)).subscribe(u => {
+  async ngOnInit() {
+    // Auto-redirect uniquement si déjà connecté ET comptes déjà configurés
+    this.auth.user$.pipe(take(1)).subscribe(async u => {
       const mode = this.budget.storageMode();
-      if (mode === 'local') return; // stay on welcome so they can pick folder
-      if (u) this.router.navigate(['/dashboard']);
+      if (mode === 'local') return;
+      if (u) {
+        await this.budget.loadAll();
+        if (this.budget.accounts().length > 0) {
+          this.router.navigate(['/dashboard']);
+        }
+        // Sinon : rester sur welcome → l'utilisateur doit passer par /login → onboarding
+      }
     });
   }
 

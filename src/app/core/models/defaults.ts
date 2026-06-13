@@ -7,11 +7,7 @@ export const DEFAULT_SANTE_KEYWORDS = (): string[] => [
   'KENKO', 'SANTIANE', 'REMBOURSEMENT SANTE', 'REMBOURS',
 ];
 
-export const DEFAULT_ACCOUNTS = (): Account[] => [
-  { id: 'commun', label: 'Compte Commun', emoji: '🏦', type: 'commun', deletable: false },
-  { id: 'yona',   label: 'Yona',          emoji: '👩', type: 'person', deletable: true },
-  { id: 'sacha',  label: 'Sacha',         emoji: '👨', type: 'person', deletable: true },
-];
+export const DEFAULT_ACCOUNTS = (): Account[] => [];
 
 export const DEFAULT_RULES = (): CatRule[] => [
   { keywords: ['COMMUN','CPT COMMUN','COMPTE COMMUN','GOUETTA-BARAN','BARANES SACHA','BARANES GOUE'], category: 'Contribution compte commun' },

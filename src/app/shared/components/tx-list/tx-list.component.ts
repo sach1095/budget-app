@@ -74,6 +74,9 @@ import { Toast } from 'primeng/toast';
             {{ tx.label }}
             <i class="pi pi-pencil edit-hint"></i>
           </div>
+          @if (tx.recurrent) {
+            <span class="recurrent-chip" title="Prélèvement récurrent">🔁</span>
+          }
           @if (budget.isContrib(tx)) {
             <span class="cat-chip contrib-chip">
               💸 {{ contribLabel(tx.contribFrom!) }}
@@ -87,6 +90,7 @@ import { Toast } from 'primeng/toast';
               {{ tx.category }}
             </span>
           }
+          
           @if (tx.budgetMonth && tx.budgetMonth !== tx.month) {
             <span class="budget-month-chip" title="Comptabilisé en {{ tx.budgetMonth }}">📅 {{ tx.budgetMonth }}</span>
           }
@@ -125,6 +129,15 @@ import { Toast } from 'primeng/toast';
           <p-select [(ngModel)]="form.category" [options]="catOptions()" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
         </div>
       }
+
+      <!-- Prélèvement récurrent -->
+      <div class="form-group recurrent-row">
+        <label class="toggle-label recurrent-toggle" [class.active]="form.recurrent">
+          <input type="checkbox" [(ngModel)]="form.recurrent" />
+          <span class="recurrent-icon">🔁</span>
+          <span>Prélèvement récurrent</span>
+        </label>
+      </div>
 
       <!-- Mois de budget override -->
       <div class="form-group budget-month-row">
@@ -475,6 +488,18 @@ import { Toast } from 'primeng/toast';
     .month-pick { padding: 0.35rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border-accent); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.82rem; font-family: inherit; outline: none; }
     .month-pick:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(139,92,246,0.15); }
     .budget-month-chip { font-size: 0.68rem; padding: 0.15rem 0.45rem; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); color: var(--accent-light); border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+    .recurrent-chip { font-size: 0.8rem; flex-shrink: 0; opacity: 0.85; cursor: default; }
+    .recurrent-row { margin-bottom: 0; }
+    .recurrent-toggle {
+      display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+      font-size: 0.85rem; color: var(--text-secondary); padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-md); border: 1.5px solid var(--border-default);
+      transition: var(--transition); user-select: none;
+    }
+    .recurrent-toggle:hover { border-color: var(--border-strong); color: var(--text-primary); }
+    .recurrent-toggle.active { border-color: rgba(96,165,250,0.5); background: rgba(96,165,250,0.08); color: #60a5fa; }
+    .recurrent-toggle input[type=checkbox] { accent-color: #60a5fa; width: 14px; height: 14px; cursor: pointer; }
+    .recurrent-icon { font-size: 1rem; }
 
     /* Filters */
     .filter-toggle-btn.active { border-color: rgba(139,92,246,0.4) !important; color: var(--accent-light) !important; background: rgba(139,92,246,0.1) !important; }
@@ -528,6 +553,30 @@ import { Toast } from 'primeng/toast';
     .col-table td.role-amount { color: var(--success); font-weight: 600; background: rgba(34,197,94,0.04) !important; }
     .col-picker-footer { display: flex; align-items: center; gap: 0.75rem; }
     .col-picker-hint { flex: 1; font-size: 0.78rem; color: var(--text-muted); }
+
+    @media (max-width: 640px) {
+      /* Toolbar : wrap proprement */
+      .toolbar { gap: 0.4rem; }
+      .tx-count { margin-left: 0; width: 100%; text-align: right; }
+
+      /* Filter bar : empilement vertical */
+      .filter-bar { flex-direction: column; gap: 0.75rem; padding: 0.875rem; }
+      .filter-group { min-width: auto; width: 100%; }
+      :host ::ng-deep .filter-select, :host ::ng-deep .filter-input { width: 100%; min-width: auto; }
+      .reset-filter-btn { width: 100%; justify-content: center; margin-left: 0; }
+
+      /* Tx row : compacter */
+      .tx-row { gap: 0.5rem; padding: 0.6rem 0.5rem; }
+      .tx-date { min-width: 36px; font-size: 0.72rem; }
+      .tx-amount { min-width: 72px; font-size: 0.8rem; }
+      .budget-month-chip { display: none; }
+      .del-btn { opacity: 1; }
+
+      /* Import list */
+      .import-list { max-height: 55vh; }
+      .import-footer { flex-wrap: wrap; gap: 0.5rem; }
+      .import-confirm-btn { width: 100%; justify-content: center; }
+    }
   `]
 })
 export class TxListComponent {
@@ -541,7 +590,7 @@ export class TxListComponent {
   applyScope: 'one' | 'all' = 'one';
   saveAsRule = false;
   overrideBudgetMonth = false;
-  form: { date: string; label: string; amount: number; category: string; contribFrom?: string; budgetMonth?: string } =
+  form: { date: string; label: string; amount: number; category: string; contribFrom?: string; budgetMonth?: string; recurrent?: boolean } =
     { date: '', label: '', amount: 0, category: 'Divers' };
   previewTxs = signal<Omit<Transaction, 'id'>[]>([]);
   editingCatIdx = signal(-1);
@@ -646,14 +695,14 @@ export class TxListComponent {
   openAdd() {
     this.editTx = null; this.applyScope = 'one'; this.saveAsRule = false; this.overrideBudgetMonth = false;
     const d = new Date();
-    this.form = { date: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, label: '', amount: 0, category: 'Divers', contribFrom: undefined, budgetMonth: undefined };
+    this.form = { date: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, label: '', amount: 0, category: 'Divers', contribFrom: undefined, budgetMonth: undefined, recurrent: false };
     this.showDialog = true;
   }
 
   openEdit(tx: Transaction) {
     this.editTx = tx; this.applyScope = 'one'; this.saveAsRule = false;
     this.overrideBudgetMonth = !!(tx.budgetMonth && tx.budgetMonth !== tx.month);
-    this.form = { date: tx.date, label: tx.label, amount: tx.amount, category: tx.category, contribFrom: tx.contribFrom, budgetMonth: tx.budgetMonth };
+    this.form = { date: tx.date, label: tx.label, amount: tx.amount, category: tx.category, contribFrom: tx.contribFrom, budgetMonth: tx.budgetMonth, recurrent: tx.recurrent ?? false };
     this.showDialog = true;
   }
 
@@ -696,13 +745,14 @@ export class TxListComponent {
     const month = this.form.date.substring(0, 7);
     const contribFrom = this.form.amount > 0 ? this.form.contribFrom : undefined;
     const budgetMonth = this.overrideBudgetMonth ? this.form.budgetMonth : undefined;
+    const recurrent = this.form.recurrent || undefined; // omit field if false
 
     if (this.editTx) {
       if (this.applyScope === 'all') {
         const key = this.budget.merchantKey(this.editTx.label);
         await this.budget.updateTransactionsBulk(
           t => this.budget.merchantKey(t.label) === key,
-          { label: this.form.label, category: this.form.category, contribFrom }
+          { label: this.form.label, category: this.form.category, contribFrom, recurrent }
         );
         if (this.saveAsRule && key) {
           const existing = this.budget.rules();
@@ -713,11 +763,11 @@ export class TxListComponent {
         }
         this.msg.add({ severity: 'success', summary: `${this.similarCount()} transactions mises à jour`, life: 3000 });
       } else {
-        await this.budget.updateTransaction(this.editTx.id, { ...this.form, month, contribFrom, budgetMonth });
+        await this.budget.updateTransaction(this.editTx.id, { ...this.form, month, contribFrom, budgetMonth, recurrent });
         this.msg.add({ severity: 'success', summary: 'Transaction modifiée', life: 2000 });
       }
     } else {
-      await this.budget.addTransaction({ ...this.form, month, accountId: this.accountId, contribFrom, budgetMonth });
+      await this.budget.addTransaction({ ...this.form, month, accountId: this.accountId, contribFrom, budgetMonth, recurrent });
       this.msg.add({ severity: 'success', summary: 'Transaction ajoutée', life: 2000 });
     }
     this.showDialog = false;

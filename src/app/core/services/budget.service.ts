@@ -52,8 +52,8 @@ export class BudgetService {
   }
 
   // Accounts
-  async addAccount(acc: Omit<Account, 'id'>): Promise<Account> {
-    const id = acc.label.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+  async addAccount(acc: Omit<Account, 'id'> & { id?: string }): Promise<Account> {
+    const id = (acc as any).id ?? (acc.label.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now());
     const newAcc = { ...acc, id };
     const updated = [...this.accounts(), newAcc];
     this.accounts.set(updated);

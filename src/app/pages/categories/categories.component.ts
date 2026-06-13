@@ -351,6 +351,36 @@ import { DEFAULT_RULES, DEFAULT_SANTE_KEYWORDS } from '../../core/models/default
       outline: none; width: 160px;
     }
     .sante-input:focus { border-color: #2dd4bf; box-shadow: 0 0 0 2px rgba(45,212,191,0.15); }
+
+    @media (max-width: 640px) {
+      .cat-page { gap: 1rem; }
+      .section-card { padding: 1rem; }
+
+      /* Cat grid : 2 colonnes sur mobile */
+      .cat-grid { grid-template-columns: 1fr 1fr; }
+      .cat-card { padding: 0.75rem; }
+
+      /* Section head : actions sous le titre */
+      .section-head { flex-direction: column; align-items: flex-start; }
+      .rules-actions { width: 100%; justify-content: flex-start; }
+
+      /* Rules list : grille simplifiée — cacher la flèche, réduire la col catégorie */
+      .rules-header-row { display: none; }
+      .rule-row { grid-template-columns: 1fr auto 40px; gap: 0.5rem; }
+      .rule-arrow { display: none; }
+      .rule-cat { font-size: 0.72rem; }
+      .rule-cat .cat-dot-sm { display: none; }
+
+      /* Recat dialog : simplifier les lignes */
+      .recat-list { max-height: 55vh; }
+      .recat-row { flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.75rem; }
+      .recat-cats { order: 3; width: 100%; padding-left: 24px; }
+      .recat-amount { margin-left: auto; }
+
+      /* Sante add row */
+      .sante-add-row { flex-wrap: wrap; }
+      .sante-input { width: 100%; }
+    }
   `]
 })
 export class CategoriesComponent {

@@ -102,6 +102,17 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
     .emoji-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .emoji-opt { font-size: 1.5rem; cursor: pointer; padding: 0.25rem; border-radius: 6px; border: 2px solid transparent; }
     .emoji-opt:hover, .emoji-opt.selected { border-color: #7c6af7; background: #252840; }
+
+    @media (max-width: 640px) {
+      .account-page { gap: 1rem; }
+      .account-header { flex-wrap: wrap; gap: 0.75rem; }
+      .account-title h2 { font-size: 1.1rem; }
+      .acc-emoji { font-size: 1.6rem; }
+      .kpi-row { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .kpi-card { padding: 0.875rem; }
+      .kpi-value { font-size: 1.1rem; }
+      .section-card { padding: 1rem; }
+    }
   `]
 })
 export class AccountComponent implements OnInit {

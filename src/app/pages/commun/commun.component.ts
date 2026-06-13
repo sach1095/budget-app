@@ -272,6 +272,26 @@ import { Toast } from 'primeng/toast';
     .dlg-btn.primary { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); color: var(--accent-light); }
     .dlg-btn.primary:hover { background: rgba(139,92,246,0.25); }
     .dlg-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    @media (max-width: 640px) {
+      .commun-page { padding: 0 0.75rem 1rem; }
+      .kpi-row { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .kpi-row .kpi-card:last-child { grid-column: 1 / -1; }
+      /* Contrib rows: hide progress bar, show info + amounts + badge in 2 cols */
+      .contrib-row, .extra-row {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 0.25rem 0.75rem;
+        align-items: center;
+      }
+      .contrib-info { grid-column: 1; grid-row: 1; }
+      .contrib-bar-wrap { display: none; }
+      .contrib-amounts { grid-column: 2; grid-row: 1; text-align: right; }
+      .contrib-diff { grid-column: 2; grid-row: 2; text-align: right; }
+      /* Cat rows: hide bar, keep dot + name + amount */
+      .cat-row { grid-template-columns: 12px 1fr 70px; }
+      .cat-bar-wrap { display: none; }
+    }
   `]
 })
 export class CommunComponent {

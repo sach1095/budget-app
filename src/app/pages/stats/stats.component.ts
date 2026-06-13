@@ -67,6 +67,10 @@ Chart.register(...registerables);
     .donut-wrap { display: flex; justify-content: center; }
     .donut-wrap canvas { max-height: 220px; max-width: 220px; }
     @media (max-width: 700px) { .charts-row { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) {
+      .stats { gap: 1rem; }
+      .period-label { font-size: 0.78rem; }
+    }
   `]
 })
 export class StatsComponent implements AfterViewInit, OnDestroy {
