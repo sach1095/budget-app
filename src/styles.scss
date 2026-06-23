@@ -244,6 +244,50 @@ body {
 /* ConfirmDialog */
 .p-confirmdialog .p-dialog-header { font-size: 1rem !important; }
 
+/* Accordion */
+.p-accordion { display: flex; flex-direction: column; gap: 0.5rem; }
+.p-accordionpanel {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.p-accordionpanel:has(.p-accordionheader[aria-expanded="true"]) {
+  border-color: var(--border-strong) !important;
+}
+.p-accordionheader {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  padding: 0.875rem 1rem !important;
+  width: 100% !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  transition: background var(--transition) !important;
+}
+.p-accordionheader:hover { background: var(--bg-hover) !important; }
+.p-accordionheader[aria-expanded="true"] { background: rgba(139,92,246,0.06) !important; }
+.p-accordionheader .p-accordionheader-toggle-icon { color: var(--text-muted) !important; margin-left: auto !important; flex-shrink: 0; }
+.p-accordioncontent-content {
+  background: transparent !important;
+  padding: 0 1rem 1rem !important;
+  color: var(--text-primary) !important;
+}
+/* Fallback for alternate PrimeNG class names */
+.p-accordion-panel { background: var(--bg-elevated) !important; border: 1px solid var(--border-default) !important; border-radius: var(--radius-md) !important; overflow: hidden; }
+.p-accordion-header button, .p-accordion-header-action {
+  background: transparent !important; border: none !important;
+  color: var(--text-primary) !important; width: 100% !important; padding: 0.875rem 1rem !important;
+}
+.p-accordion-content { background: transparent !important; padding: 0 1rem 1rem !important; color: var(--text-primary) !important; }
+
 /* InputNumber */
 .p-inputnumber { width: 100%; }
 

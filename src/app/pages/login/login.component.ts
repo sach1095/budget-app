@@ -278,7 +278,7 @@ export class LoginComponent {
     this.error.set(null); this.loading.set(true);
     this.auth.login(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: (e: any) => { this.error.set(this.friendlyError(e.code)); this.loading.set(false); }
+      error: (e: any) => { this.error.set(this.friendlyError(e.code, e.message)); this.loading.set(false); }
     });
   }
 
@@ -286,18 +286,18 @@ export class LoginComponent {
     this.error.set(null); this.loading.set(true);
     this.auth.register(this.email, this.password, this.displayName).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: (e: any) => { this.error.set(this.friendlyError(e.code)); this.loading.set(false); }
+      error: (e: any) => { this.error.set(this.friendlyError(e.code, e.message)); this.loading.set(false); }
     });
   }
 
   async sendSMS() {
     this.error.set(null); this.loading.set(true);
     try {
-      await new Promise(r => setTimeout(r, 50)); // laisser Angular rendre #rcap-login
+      await new Promise(r => requestAnimationFrame(r)); // laisser Angular rendre #rcap-login
       await this.auth.sendPhoneSMSWithContainer(this.phone, 'rcap-login');
       this.codeSent.set(true);
     } catch (e: any) {
-      this.error.set(this.friendlyError(e.code) || e.message || 'Erreur inconnue');
+      this.error.set(this.friendlyError(e.code, e.message));
     } finally {
       this.loading.set(false);
     }
@@ -315,7 +315,7 @@ export class LoginComponent {
     }
   }
 
-  private friendlyError(code: string): string {
+  private friendlyError(code: string, rawMessage?: string): string {
     const map: Record<string, string> = {
       'auth/invalid-email': 'Email invalide.',
       'auth/user-not-found': 'Utilisateur introuvable.',
@@ -324,11 +324,16 @@ export class LoginComponent {
       'auth/weak-password': 'Mot de passe trop faible (min. 6 caractères).',
       'auth/invalid-credential': 'Email ou mot de passe incorrect.',
       'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
+      'auth/quota-exceeded': 'Quota SMS dépassé. Réessayez dans 24h.',
       'auth/invalid-phone-number': 'Numéro invalide. Format : +33 6 12 34 56 78',
       'auth/missing-phone-number': 'Entrez un numéro de téléphone.',
-      'auth/operation-not-allowed': "Auth téléphone non activée dans Firebase Console.",
-      'auth/invalid-app-credential': 'Erreur reCAPTCHA. Vérifiez les domaines autorisés dans Firebase Console.',
+      'auth/operation-not-allowed': "Auth téléphone non activée — activez-la dans Firebase Console > Authentication > Sign-in method.",
+      'auth/invalid-app-credential': "Erreur reCAPTCHA (auth/invalid-app-credential). Vérifiez : 1) Domaines autorisés dans Firebase Console > Authentication > Settings 2) L'auth téléphone est activée.",
+      'auth/captcha-check-failed': "Vérification reCAPTCHA échouée. Rechargez la page et réessayez.",
+      'auth/invalid-verification-code': 'Code SMS invalide.',
+      'auth/session-expired': 'Session expirée. Renvoyez le code SMS.',
+      'auth/unknown': rawMessage ? `Erreur Firebase : ${rawMessage}` : 'Erreur inconnue. Vérifiez la console.',
     };
-    return map[code] || '';
+    return map[code] || (code ? `Erreur Firebase [${code}]${rawMessage ? ' : ' + rawMessage : ''}` : 'Erreur inconnue.');
   }
 }

@@ -51,18 +51,33 @@ export class AuthService {
     }
     const wrapper = document.getElementById(containerId);
     if (!wrapper) throw new Error(`Container #${containerId} introuvable`);
+    // Crée un élément avec ID unique — Firebase l'utilise en interne pour tracker le widget
     const fresh = document.createElement('div');
+    fresh.id = `rcap-widget-${Date.now()}`;
     wrapper.replaceChildren(fresh);
-    this.recaptchaVerifier = new RecaptchaVerifier(this.auth, fresh, { size: 'invisible' });
+    this.recaptchaVerifier = new RecaptchaVerifier(this.auth, fresh, {
+      size: 'invisible',
+      callback: () => {},
+      'expired-callback': () => {
+        try { this.recaptchaVerifier?.clear(); } catch {}
+        this.recaptchaVerifier = null;
+      }
+    });
     await this.recaptchaVerifier.render();
     try {
       this.confirmationResult = await signInWithPhoneNumber(this.auth, phone, this.recaptchaVerifier);
     } catch (e: any) {
-      const msg = (e?.message ?? '') + (e?.code ?? '');
-      if (msg.includes('OPERATION_NOT_ALLOWED')) throw { code: 'auth/operation-not-allowed' };
-      if (msg.includes('INVALID_APP_CREDENTIAL')) throw { code: 'auth/invalid-app-credential' };
-      if (msg.includes('INVALID_PHONE_NUMBER')) throw { code: 'auth/invalid-phone-number' };
-      throw e;
+      try { this.recaptchaVerifier?.clear(); } catch {}
+      this.recaptchaVerifier = null;
+      const code: string = e?.code ?? '';
+      const msg: string = e?.message ?? '';
+      if (code === 'auth/operation-not-allowed' || msg.includes('OPERATION_NOT_ALLOWED')) throw { code: 'auth/operation-not-allowed' };
+      if (code === 'auth/invalid-app-credential' || msg.includes('INVALID_APP_CREDENTIAL')) throw { code: 'auth/invalid-app-credential' };
+      if (code === 'auth/invalid-phone-number' || msg.includes('INVALID_PHONE_NUMBER')) throw { code: 'auth/invalid-phone-number' };
+      if (code === 'auth/too-many-requests') throw { code: 'auth/too-many-requests' };
+      if (code === 'auth/quota-exceeded') throw { code: 'auth/quota-exceeded' };
+      // Rethrow avec le code Firebase original pour affichage debug
+      throw { code: code || 'auth/unknown', message: msg };
     }
   }
 
@@ -101,25 +116,29 @@ export class AuthService {
     const fresh = document.createElement('div');
     wrapper.replaceChildren(fresh);
 
-    this.recaptchaVerifier = new RecaptchaVerifier(this.auth, fresh, { size: 'invisible' });
-    // render() sur l'élément frais initialise le widgetId — linkWithPhoneNumber réutilise
-    // le widget existant sans tenter de le re-créer (évite "already rendered")
+    fresh.id = `rcap-widget-${Date.now()}`;
+    this.recaptchaVerifier = new RecaptchaVerifier(this.auth, fresh, {
+      size: 'invisible',
+      callback: () => {},
+      'expired-callback': () => {
+        try { this.recaptchaVerifier?.clear(); } catch {}
+        this.recaptchaVerifier = null;
+      }
+    });
     await this.recaptchaVerifier.render();
 
     try {
       this.confirmationResult = await linkWithPhoneNumber(u, phone, this.recaptchaVerifier);
     } catch (e: any) {
-      const msg = (e?.message ?? '') + (e?.code ?? '');
-      if (msg.includes('OPERATION_NOT_ALLOWED') || msg.includes('operation-not-allowed')) {
-        throw { code: 'auth/operation-not-allowed' };
-      }
-      if (msg.includes('INVALID_APP_CREDENTIAL') || msg.includes('invalid-app-credential')) {
-        throw { code: 'auth/invalid-app-credential' };
-      }
-      if (msg.includes('INVALID_PHONE_NUMBER') || msg.includes('invalid-phone-number')) {
-        throw { code: 'auth/invalid-phone-number' };
-      }
-      throw e;
+      try { this.recaptchaVerifier?.clear(); } catch {}
+      this.recaptchaVerifier = null;
+      const code: string = e?.code ?? '';
+      const msg: string = e?.message ?? '';
+      if (code === 'auth/operation-not-allowed' || msg.includes('OPERATION_NOT_ALLOWED')) throw { code: 'auth/operation-not-allowed' };
+      if (code === 'auth/invalid-app-credential' || msg.includes('INVALID_APP_CREDENTIAL')) throw { code: 'auth/invalid-app-credential' };
+      if (code === 'auth/invalid-phone-number' || msg.includes('INVALID_PHONE_NUMBER')) throw { code: 'auth/invalid-phone-number' };
+      if (code === 'auth/too-many-requests') throw { code: 'auth/too-many-requests' };
+      throw { code: code || 'auth/unknown', message: msg };
     }
   }
 
