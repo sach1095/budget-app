@@ -71,10 +71,10 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
           }
         </div>
       </div>
-      <ng-template pTemplate="footer">
+      <div class="edit-dlg-footer">
         <p-button label="Annuler" [text]="true" (onClick)="showEdit = false" />
         <p-button label="Enregistrer" icon="pi pi-check" (onClick)="saveEdit()" />
-      </ng-template>
+      </div>
     </p-dialog>
   `,
   styles: [`
@@ -102,6 +102,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
     .emoji-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .emoji-opt { font-size: 1.5rem; cursor: pointer; padding: 0.25rem; border-radius: 6px; border: 2px solid transparent; }
     .emoji-opt:hover, .emoji-opt.selected { border-color: #7c6af7; background: #252840; }
+    .edit-dlg-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid #1e2235; margin-top: 0.5rem; }
 
     @media (max-width: 640px) {
       .account-page { gap: 1rem; }

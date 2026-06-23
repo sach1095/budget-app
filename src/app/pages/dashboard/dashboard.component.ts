@@ -220,10 +220,10 @@ import { InputText } from 'primeng/inputtext';
           }
         </div>
       </div>
-      <ng-template pTemplate="footer">
+      <div class="add-dlg-footer">
         <p-button label="Annuler" [text]="true" (onClick)="showAddAccount = false" />
         <p-button label="Créer" icon="pi pi-check" (onClick)="addAccount()" [disabled]="!newLabel" />
-      </ng-template>
+      </div>
     </p-dialog>
   `,
   styles: [`
@@ -316,6 +316,14 @@ import { InputText } from 'primeng/inputtext';
     .drawer { display: none; }
 
     /* ── Responsive ─────────────────────────────────────── */
+    /* Add account dialog */
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .form-label { color: #94a3b8; font-size: 0.875rem; }
+    .emoji-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .emoji-opt { font-size: 1.5rem; cursor: pointer; padding: 0.25rem; border-radius: 6px; border: 2px solid transparent; }
+    .emoji-opt:hover, .emoji-opt.selected { border-color: var(--accent); background: var(--bg-elevated); }
+    .add-dlg-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); margin-top: 0.5rem; }
+
     @media (max-width: 640px) {
       .layout { flex-direction: column; }
       .sidebar { display: none; }
